@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ChevronDown, Menu, X, User, LayoutDashboard, Settings, Zap, BookOpen, TrendingUp } from 'lucide-react';
-import Link from 'next/link';
+import type { SVGProps } from 'react';
+import { ChevronDown, Menu, X, User, LayoutDashboard, Settings } from 'lucide-react';
 
 // Simplified icon components (you can replace with your actual icons)
 const icons = {
@@ -22,30 +22,30 @@ const navigationItems = {
     title: 'Products',
     description: 'Restoration is not just healing Earth — it is asking, what kind of planet is Earth becoming?',
     items: [
-      { 
-        name: 'Smart Reforestation System (SRS)', 
-        href: '/srs', 
+      {
+        name: 'Smart Reforestation System (SRS)',
+        href: '/srs',
         icon: icons.Globe,
         description: 'AI-powered ecosystem restoration platform',
         badge: 'Featured'
       },
-      { 
-        name: 'Restoration Based Credential (RBC)', 
-        href: '/products/rbc', 
+      {
+        name: 'Restoration Based Credential (RBC)',
+        href: '/products/rbc',
         icon: icons.Shield,
         description: 'Blockchain-verified restoration credentials',
         badge: undefined
       },
-      { 
-        name: 'Regenerative Economic Zones (REZ)', 
-        href: '/rez', 
+      {
+        name: 'Regenerative Economic Zones (REZ)',
+        href: '/rez',
         icon: icons.Building,
         description: 'Scalable economic zones on restored land',
         badge: undefined
       },
-      { 
-        name: 'Ecosystem Intelligence as a Service (EIAS)', 
-        href: '/eias', 
+      {
+        name: 'Ecosystem Intelligence as a Service (EIAS)',
+        href: '/eias',
         icon: icons.Cpu,
         description: 'Real-time environmental monitoring & analytics',
         badge: undefined
@@ -54,7 +54,7 @@ const navigationItems = {
     featured: {
       name: 'Smart Reforestation System',
       href: '/srs',
-      description: 'The world\'s most advanced ecosystem restoration platform'
+      description: "The world's most advanced ecosystem restoration platform"
     }
   },
   solutions: {
@@ -75,89 +75,92 @@ const navigationItems = {
         description: 'Strategic tree planting for cities',
         badge: 'MVP'
       },
-      { 
-        name: 'Land Restoration & Biodiversity', 
-        href: '/solutions/restoration', 
+      {
+        name: 'Land Restoration & Biodiversity',
+        href: '/solutions/restoration',
         icon: icons.Globe,
         description: 'Comprehensive ecosystem restoration',
         badge: undefined
       },
-      { 
-        name: 'Local Job Creation & Training', 
-        href: '/solutions/jobs', 
+      {
+        name: 'Local Job Creation & Training',
+        href: '/solutions/jobs',
         icon: icons.Users,
         description: 'Sustainable employment opportunities',
         badge: undefined
       },
     ],
+    featured: undefined,
   },
   resources: {
     title: 'Resources',
     description: 'Discover our repository of resources for restoration and education.',
     items: [
-      { 
-        name: 'Blog & Research Articles', 
-        href: '/resources/blog', 
+      {
+        name: 'Blog & Research Articles',
+        href: '/resources/blog',
         icon: icons.Document,
         description: 'Latest insights and research',
         badge: undefined
       },
-      { 
-        name: 'Reports & Whitepapers', 
-        href: '/resources/reports', 
+      {
+        name: 'Reports & Whitepapers',
+        href: '/resources/reports',
         icon: icons.Document,
         description: 'In-depth analysis and documentation',
         badge: undefined
       },
-      { 
-        name: 'Case Studies & Pilot Results', 
-        href: '/resources/cases', 
+      {
+        name: 'Case Studies & Pilot Results',
+        href: '/resources/cases',
         icon: icons.Book,
         description: 'Real-world success stories',
         badge: undefined
       },
-      { 
-        name: 'Restoration Playbook', 
-        href: '/resources/playbook', 
+      {
+        name: 'Restoration Playbook',
+        href: '/resources/playbook',
         icon: icons.Book,
         description: 'Implementation guide',
         badge: undefined
       },
     ],
+    featured: undefined,
   },
   partner: {
     title: 'Frontier Intervensions',
     description: 'How together we can make a global impact.',
     items: [
-      { 
-        name: 'RBC Training Platform', 
-        href: '/rbc-training', 
+      {
+        name: 'RBC Training Platform',
+        href: '/rbc-training',
         icon: icons.Book,
         description: 'University-integrated talent engine',
         badge: 'New'
       },
-      { 
-        name: 'Institutional Collaborations', 
-        href: '/partner/institutions', 
+      {
+        name: 'Institutional Collaborations',
+        href: '/partner/institutions',
         icon: icons.Bank,
         description: 'Partner with universities',
         badge: undefined
       },
-      { 
-        name: 'Landowners & Communities', 
-        href: '/partner/landowners', 
+      {
+        name: 'Landowners & Communities',
+        href: '/partner/landowners',
         icon: icons.Users,
         description: 'Transform your land',
         badge: undefined
       },
-      { 
-        name: 'NGOs & Social Enterprises', 
-        href: '/partner/ngos', 
+      {
+        name: 'NGOs & Social Enterprises',
+        href: '/partner/ngos',
         icon: icons.Building,
         description: 'Collaborate on impact',
         badge: undefined
       },
     ],
+    featured: undefined,
   },
 };
 
@@ -166,7 +169,7 @@ const Header = () => {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [username, setUsername] = useState(null);
+  const [username, setUsername] = useState<string | null>(null);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 10);
@@ -175,9 +178,9 @@ const Header = () => {
   }, []);
 
   return (
-    <header 
+    <header
       className={`sticky top-0 z-50 w-full transition-all duration-300 ${
-        isScrolled 
+        isScrolled
           ? 'bg-white border-b border-gray-200 shadow-md'
           : 'bg-white'
       }`}
@@ -218,13 +221,11 @@ const Header = () => {
                 {activeDropdown === key && (
                   <div className="fixed left-0 top-16 w-full bg-white border-t border-b border-gray-200 shadow-xl">
                     <div className="max-w-6xl mx-auto px-8 py-8">
-                      {/* Header */}
                       <div className="mb-6">
                         <h3 className="text-2xl font-bold text-gray-900 mb-2">{section.title}</h3>
                         <p className="text-gray-600 max-w-2xl">{section.description}</p>
                       </div>
 
-                      {/* Grid Layout */}
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {section.items.map((item) => (
                           <a
@@ -252,8 +253,7 @@ const Header = () => {
                         ))}
                       </div>
 
-                      {/* Featured Section */}
-                      {'featured' in section && section.featured && (
+                      {section.featured && (
                         <div className="mt-6 pt-6 border-t border-gray-200">
                           <a
                             href={section.featured.href}
