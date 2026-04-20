@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../co
 
 type State = "idle" | "pending" | "success" | "error";
 
-export default function VerifyEmailPage() {
+function VerifyEmailContent() {
   const sp = useSearchParams();
   const token = sp.get("token") || "";
   const email = sp.get("email") || "";
@@ -142,9 +142,23 @@ export default function VerifyEmailPage() {
     );
   }, [token, state, message, email]);
 
+  return <>{content}</>;
+}
+
+export default function VerifyEmailPage() {
   return (
     <div className="min-h-[calc(100dvh)] grid place-items-center px-6 py-12">
-      <Card className="w-full max-w-[480px] border-0 shadow-xl">{content}</Card>
+      <Card className="w-full max-w-[480px] border-0 shadow-xl">
+        <Suspense
+          fallback={
+            <CardContent className="grid place-items-center gap-4 py-8">
+              <Loader2 className="size-8 animate-spin text-primary" />
+            </CardContent>
+          }
+        >
+          <VerifyEmailContent />
+        </Suspense>
+      </Card>
     </div>
   );
 }
