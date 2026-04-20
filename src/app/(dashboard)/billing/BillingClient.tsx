@@ -10,6 +10,17 @@ interface BillingHistory {
   invoiceUrl: string;
 }
 
+interface PlanFeatures {
+  evidence: boolean;
+  financials: boolean;
+  competitors: boolean;
+  collaborate: boolean;
+  templates: string;
+  branding: boolean;
+  api: boolean;
+  sso: boolean;
+}
+
 interface PlanDetails {
   name: string;
   price: string;
@@ -20,16 +31,7 @@ interface PlanDetails {
   analysis: string;
   storage: string;
   support: string;
-  features: {
-    evidence: boolean;
-    financials: boolean;
-    competitors: boolean;
-    collaborate: boolean;
-    templates: string;
-    branding: boolean;
-    api: boolean;
-    sso: boolean;
-  };
+  features: PlanFeatures;
 }
 
 const mockBillingHistory: BillingHistory[] = [
@@ -161,6 +163,31 @@ const planTiers: PlanDetails[] = [
   },
 ];
 
+type ScalarPlanKey = "projects" | "reports" | "analysis" | "storage" | "support" | "templates";
+type BooleanFeatureKey = "evidence" | "financials" | "competitors" | "collaborate" | "branding" | "api" | "sso";
+
+type CompareRow =
+  | { label: string; type: "price" }
+  | { label: string; type: "scalar"; key: ScalarPlanKey }
+  | { label: string; type: "boolean"; key: BooleanFeatureKey };
+
+const compareRows: CompareRow[] = [
+  { label: "Price", type: "price" },
+  { label: "Projects", type: "scalar", key: "projects" },
+  { label: "Reports", type: "scalar", key: "reports" },
+  { label: "Analysis", type: "scalar", key: "analysis" },
+  { label: "Storage", type: "scalar", key: "storage" },
+  { label: "Support", type: "scalar", key: "support" },
+  { label: "Evidence", type: "boolean", key: "evidence" },
+  { label: "Financials", type: "boolean", key: "financials" },
+  { label: "Competitors", type: "boolean", key: "competitors" },
+  { label: "Collaborate", type: "boolean", key: "collaborate" },
+  { label: "Templates", type: "scalar", key: "templates" },
+  { label: "Branding", type: "boolean", key: "branding" },
+  { label: "API", type: "boolean", key: "api" },
+  { label: "SSO", type: "boolean", key: "sso" },
+];
+
 const upgradePlans = [
   {
     name: "Accelerator",
@@ -201,6 +228,27 @@ const upgradePlans = [
     ],
   },
 ];
+
+function renderCompareCell(row: CompareRow, plan: PlanDetails): React.ReactNode {
+  if (row.type === "price") {
+    return (
+      <span className="font-semibold">
+        {plan.price}
+        {plan.period}
+      </span>
+    );
+  }
+  if (row.type === "scalar") {
+    const value = row.key === "templates" ? plan.features.templates : plan[row.key];
+    return <span>{String(value)}</span>;
+  }
+  // boolean feature
+  return plan.features[row.key] ? (
+    <span className="text-green-600 font-bold">✓</span>
+  ) : (
+    <span className="text-gray-300">−</span>
+  );
+}
 
 export default function BillingClient() {
   const [showContactModal, setShowContactModal] = useState(false);
@@ -250,7 +298,7 @@ export default function BillingClient() {
           </div>
 
           <div className="flex gap-2 pt-2">
-            <button 
+            <button
               onClick={() => setShowComparePlans(true)}
               className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm font-medium"
             >
@@ -306,7 +354,7 @@ export default function BillingClient() {
                 <p className="text-xs text-muted-foreground">Expires 12/2026</p>
               </div>
             </div>
-            <button 
+            <button
               onClick={() => setShowPaymentUpdate(true)}
               className="px-4 py-2 border rounded-md hover:bg-gray-50 text-sm"
             >
@@ -364,9 +412,7 @@ export default function BillingClient() {
                 Page {currentPage} of {totalPages}
               </span>
               <button
-                onClick={() =>
-                  setCurrentPage((p) => Math.min(totalPages, p + 1))
-                }
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                 disabled={currentPage === totalPages}
                 className="px-2 py-1 text-xs border rounded hover:bg-white disabled:opacity-50"
               >
@@ -422,6 +468,8 @@ export default function BillingClient() {
                   onClick={() => {
                     if (plan.name === "Enterprise") {
                       setShowContactModal(true);
+                    } else {
+                      handleUpgradeClick(plan.name);
                     }
                   }}
                   className={`w-full py-2 rounded-md text-sm font-medium transition ${
@@ -451,7 +499,7 @@ export default function BillingClient() {
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <form className="space-y-3">
+            <div className="space-y-3">
               <input
                 type="text"
                 placeholder="Your name"
@@ -480,13 +528,13 @@ export default function BillingClient() {
                   Cancel
                 </button>
                 <button
-                  type="submit"
+                  type="button"
                   className="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
                 >
                   Send Request
                 </button>
               </div>
-            </form>
+            </div>
           </div>
         </div>
       )}
@@ -539,45 +587,12 @@ export default function BillingClient() {
                     </tr>
                   </thead>
                   <tbody className="divide-y">
-                    {[
-                      { label: "Price", key: "price" },
-                      { label: "Projects", key: "projects" },
-                      { label: "Reports", key: "reports" },
-                      { label: "Analysis", key: "analysis" },
-                      { label: "Storage", key: "storage" },
-                      { label: "Support", key: "support" },
-                      { label: "Evidence", key: "evidence" },
-                      { label: "Financials", key: "financials" },
-                      { label: "Competitors", key: "competitors" },
-                      { label: "Collaborate", key: "collaborate" },
-                      { label: "Templates", key: "templates" },
-                      { label: "Branding", key: "branding" },
-                      { label: "API", key: "api" },
-                      { label: "SSO", key: "sso" },
-                    ].map((row) => (
-                      <tr key={row.key}>
+                    {compareRows.map((row) => (
+                      <tr key={row.label}>
                         <td className="p-3 font-medium border-r">{row.label}</td>
                         {planTiers.map((plan) => (
-                          <td key={`${plan.name}-${row.key}`} className="p-3 text-center">
-                            {row.key === "price" ? (
-                              <span className="font-semibold">
-                                {plan.price}
-                                {plan.period}
-                              </span>
-                            ) : row.key === "projects" ||
-                              row.key === "reports" ||
-                              row.key === "analysis" ||
-                              row.key === "storage" ||
-                              row.key === "support" ||
-                              row.key === "templates" ? (
-                              <span>{plan[row.key as keyof typeof plan]}</span>
-                            ) : (
-                              plan.features[row.key as keyof typeof plan.features] ? (
-                                <span className="text-green-600 font-bold">✓</span>
-                              ) : (
-                                <span className="text-gray-300">−</span>
-                              )
-                            )}
+                          <td key={`${plan.name}-${row.label}`} className="p-3 text-center">
+                            {renderCompareCell(row, plan)}
                           </td>
                         ))}
                       </tr>
@@ -605,10 +620,13 @@ export default function BillingClient() {
             </div>
 
             <div className="bg-blue-50 p-4 rounded-lg space-y-3 text-sm">
-              <p>You're upgrading from <strong>Accelerator</strong> to <strong>{selectedUpgradePlan}</strong></p>
+              <p>
+                You&apos;re upgrading from <strong>Accelerator</strong> to{" "}
+                <strong>{selectedUpgradePlan}</strong>
+              </p>
 
               <div className="border-t pt-3">
-                <h4 className="font-semibold mb-2">What's changing:</h4>
+                <h4 className="font-semibold mb-2">What&apos;s changing:</h4>
                 <ul className="space-y-1 text-xs text-gray-700">
                   <li>• Projects: 3 → 5 concurrent</li>
                   <li>• Storage: 10GB → 50GB</li>
@@ -632,7 +650,9 @@ export default function BillingClient() {
                     <span>Prorated charge today:</span>
                     <span>$10,416.67</span>
                   </div>
-                  <p className="text-gray-600 text-xs italic mt-1">Covers remaining 5 months of billing cycle</p>
+                  <p className="text-gray-600 text-xs italic mt-1">
+                    Covers remaining 5 months of billing cycle
+                  </p>
                 </div>
               </div>
 
@@ -686,26 +706,18 @@ export default function BillingClient() {
               <p className="text-sm font-semibold">Welcome to {selectedUpgradePlan} tier!</p>
               <p className="text-sm text-gray-700">Your new features are active immediately:</p>
               <ul className="space-y-1 text-sm">
-                <li className="flex items-center gap-2">
-                  <span className="text-green-600">✓</span>
-                  <span>5 concurrent projects</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="text-green-600">✓</span>
-                  <span>50GB storage</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="text-green-600">✓</span>
-                  <span>Dedicated account manager</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="text-green-600">✓</span>
-                  <span>Custom branding</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="text-green-600">✓</span>
-                  <span>API access</span>
-                </li>
+                {[
+                  "5 concurrent projects",
+                  "50GB storage",
+                  "Dedicated account manager",
+                  "Custom branding",
+                  "API access",
+                ].map((f) => (
+                  <li key={f} className="flex items-center gap-2">
+                    <span className="text-green-600">✓</span>
+                    <span>{f}</span>
+                  </li>
+                ))}
               </ul>
               <p className="text-xs text-gray-600 pt-2">
                 Receipt emailed to jane@university.edu
@@ -744,7 +756,7 @@ export default function BillingClient() {
               </button>
             </div>
 
-            <form className="space-y-4">
+            <div className="space-y-4">
               <div>
                 <label className="text-sm font-medium">Card Number</label>
                 <input
@@ -815,13 +827,13 @@ export default function BillingClient() {
                   Cancel
                 </button>
                 <button
-                  type="submit"
+                  type="button"
                   className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm font-medium"
                 >
                   Save Payment Method
                 </button>
               </div>
-            </form>
+            </div>
           </div>
         </div>
       )}
@@ -837,13 +849,15 @@ export default function BillingClient() {
 
             <div className="bg-orange-50 p-4 rounded-lg space-y-3 text-sm">
               <p>
-                Your payment of <strong>$25,000</strong> for the <strong>Accelerator plan</strong> could not be processed.
+                Your payment of <strong>$25,000</strong> for the{" "}
+                <strong>Accelerator plan</strong> could not be processed.
               </p>
               <p>
                 <strong>Reason:</strong> Insufficient funds
               </p>
               <p className="text-gray-700">
-                We'll retry in 3 days. If payment fails 3 times, your account will be downgraded to Trial tier.
+                We&apos;ll retry in 3 days. If payment fails 3 times, your account will be
+                downgraded to Trial tier.
               </p>
               <p className="text-xs text-gray-600">
                 To avoid service interruption, please update your payment method immediately.
@@ -891,8 +905,8 @@ export default function BillingClient() {
               </button>
             </div>
             <p className="text-sm text-muted-foreground">
-              Your subscription will remain active until the end of your billing period (Dec 1, 2025).
-              You can reactivate anytime.
+              Your subscription will remain active until the end of your billing period (Dec 1,
+              2025). You can reactivate anytime.
             </p>
             <div className="flex gap-2 justify-end pt-2">
               <button
