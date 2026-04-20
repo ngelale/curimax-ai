@@ -5,7 +5,7 @@ import { Card } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { CommentItem } from "./comment-item";
 import { CommentInput } from "./comment-input";
-import { Comment, CommentThread as ICommentThread, mockComments, mockCurrentUser } from "./types";
+import { Comment, CommentThread as ICommentThread, CommentStatus, mockComments, mockCurrentUser } from "./types";
 import { MessageCircle, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 
@@ -32,7 +32,6 @@ export function CommentThread({
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
   const [showComments, setShowComments] = useState(false);
 
-  // Filter comments based on resolved status
   const filteredComments = useMemo(() => {
     return comments.filter((c) => showResolved || c.status !== "resolved");
   }, [comments, showResolved]);
@@ -42,7 +41,6 @@ export function CommentThread({
 
   const handleAddComment = (content: string, parentCommentId?: string) => {
     if (parentCommentId) {
-      // Add reply to comment
       const updatedComments = comments.map((comment) => {
         if (comment.id === parentCommentId) {
           return {
@@ -67,7 +65,6 @@ export function CommentThread({
       setComments(updatedComments);
       setReplyingTo(null);
     } else {
-      // Add new comment
       const newComment: Comment = {
         id: `comment-${Date.now()}`,
         threadId: `thread-${resourceId}`,
@@ -95,7 +92,7 @@ export function CommentThread({
       if (comment.id === commentId) {
         return {
           ...comment,
-          status: comment.status === "resolved" ? "active" : "resolved",
+          status: (comment.status === "resolved" ? "active" : "resolved") as CommentStatus,
         };
       }
       return comment;
@@ -112,7 +109,6 @@ export function CommentThread({
           userLiked: !comment.userLiked,
         };
       }
-      // Handle reply likes
       if (comment.replies.some((r) => r.id === commentId)) {
         return {
           ...comment,
@@ -144,7 +140,9 @@ export function CommentThread({
             onClick={() => setShowComments(!showComments)}
           >
             <MessageCircle className="h-4 w-4 mr-2 text-blue-600" />
-            <span>{activeComments.length} Comment{activeComments.length !== 1 ? "s" : ""}</span>
+            <span>
+              {activeComments.length} Comment{activeComments.length !== 1 ? "s" : ""}
+            </span>
             {resolvedComments.length > 0 && (
               <span className="text-slate-500 ml-2">
                 ({resolvedComments.length} resolved)
@@ -172,7 +170,6 @@ export function CommentThread({
         {/* Comments Section */}
         {showComments && (
           <div className="space-y-4 border-t border-slate-200 pt-4">
-            {/* Active Comments */}
             {filteredComments.length > 0 ? (
               <div className="space-y-0">
                 {filteredComments.map((comment) => (
@@ -208,7 +205,6 @@ export function CommentThread({
               </p>
             )}
 
-            {/* Show Resolved Toggle */}
             {resolvedComments.length > 0 && (
               <Button
                 variant="ghost"
@@ -220,7 +216,6 @@ export function CommentThread({
               </Button>
             )}
 
-            {/* Resolved Comments Section */}
             {showResolved && (
               <div className="mt-4 pt-4 border-t border-slate-200 space-y-0">
                 <p className="text-xs font-semibold text-slate-500 mb-2">
@@ -240,7 +235,6 @@ export function CommentThread({
               </div>
             )}
 
-            {/* Add Comment Input */}
             <div className="border-t border-slate-200 pt-4">
               <CommentInput
                 onSubmit={handleAddComment}
